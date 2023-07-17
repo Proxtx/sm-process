@@ -1,0 +1,20 @@
+#wrap {
+  width: 100%;
+  background-color: var(--boxColor);
+  border-radius: var(--borderRadius);
+  padding: var(--contentSpacing);
+  box-sizing: border-box;
+}
+
+#innerWrap {
+  width: 100%;
+  border-radius: var(--borderRadius);
+  background-color: var(--backgroundColor);
+  color: var(--darkenedLightColor);
+  overflow: auto;
+  box-sizing: border-box;
+  padding: var(--contentSpacing);
+  display: flex;
+  flex-direction: column-reverse;
+  max-height: 200px;
+}
