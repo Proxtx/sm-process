@@ -7,6 +7,7 @@ export class Component {
   constructor(service, config) {
     this.service = service;
     this.config = config;
+    if (this.config.autoStart) this.functions.start();
   }
 
   updateLog(data) {
@@ -34,6 +35,7 @@ export class Component {
         this.process.addListener("close", () => {
           delete this.process;
           this.service.viewReload();
+          if (this.config.autoRestart) this.functions.start;
         });
       }
       this.service.viewReload();
