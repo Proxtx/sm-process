@@ -49,6 +49,10 @@ export class Component {
     },
   };
 
+  unload() {
+    this.process && this.process.kill();
+  }
+
   getData = (widget) => {
     if (widget == "small-widget" || widget == "main-widget")
       return Boolean(this.process);
