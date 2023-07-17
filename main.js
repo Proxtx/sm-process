@@ -1,29 +1,55 @@
+import { spawn } from "child_process";
+
 export class Component {
-  status = true;
-  log = "hi";
+  status = false;
+  log = "";
 
-  constructor(service) {
+  constructor(service, config) {
     this.service = service;
-    setTimeout(() => {
-      this.status = false;
-      this.service.overviewReload();
-      this.service.viewReload();
-    }, 5000);
+    this.config = config;
+  }
 
-    setTimeout(() => {
-      this.log = "hello";
-      this.service.viewUpdate("sm-process", "log-widget");
-    }, 7000);
+  updateLog(data) {
+    this.log += data.toString();
+    if (this.log.length > 10000)
+      this.log = this.log.substring(this.log.length - 10000);
+    this.service.viewUpdate("sm-process", "log-widget");
   }
 
   functions = {
-    start: async () => {},
+    start: async () => {
+      this.log = "";
+      if (!this.process) {
+        let run = this.config.run.split(" ");
+        this.process = await spawn(run.shift(), run, {
+          cwd: this.service.config.path,
+        });
 
-    stop: async () => {},
+        this.process.stdout.on("data", (data) => {
+          this.updateLog(data);
+        });
+        this.process.stderr.on("data", (data) => {
+          this.updateLog(data);
+        });
+        this.process.addListener("close", () => {
+          delete this.process;
+          this.service.viewReload();
+        });
+      }
+      this.service.viewReload();
+      this.service.overviewReload();
+    },
+
+    stop: async () => {
+      this.process && this.process.kill();
+      this.service.viewReload();
+      this.service.overviewReload();
+    },
   };
 
   getData = (widget) => {
-    if (widget == "small-widget" || widget == "main-widget") return this.status;
+    if (widget == "small-widget" || widget == "main-widget")
+      return Boolean(this.process);
     if (widget == "log-widget") return this.log;
   };
 
@@ -33,17 +59,17 @@ export class Component {
   configConfig = [
     {
       name: "run",
-      input: "text",
+      type: "text",
       value: "node .",
     },
     {
       name: "autoStart",
-      input: "bool",
+      type: "bool",
       value: true,
     },
     {
       name: "autoRestart",
-      input: "bool",
+      type: "bool",
       value: false,
     },
   ];
