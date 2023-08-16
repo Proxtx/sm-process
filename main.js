@@ -3,6 +3,7 @@ import { spawn } from "child_process";
 export class Component {
   status = false;
   log = "";
+  restartEnabled = true;
 
   constructor(service, config) {
     this.service = service;
@@ -35,7 +36,8 @@ export class Component {
         this.process.addListener("close", () => {
           delete this.process;
           this.service.viewReload();
-          if (this.config.autoRestart) this.functions.start();
+          if (this.config.autoRestart && this.restartEnabled)
+            this.functions.start();
         });
       }
       this.service.viewReload();
@@ -50,6 +52,7 @@ export class Component {
   };
 
   unload() {
+    this.restartEnabled = false;
     this.process && this.process.kill();
   }
 
