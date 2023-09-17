@@ -22,10 +22,9 @@ export class Component {
       this.log = "";
       if (!this.process) {
         let run = this.config.run.split(" ");
-        this.process = await spawn(run.shift(), run, {
+	this.process = await spawn(run.shift(), run, {
           cwd: this.service.config.path,
         });
-
         this.process.stdout.on("data", (data) => {
           this.updateLog(data);
         });
